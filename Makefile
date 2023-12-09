@@ -58,6 +58,11 @@ phpunit: ## The PHP unit testing framework
 	$(EXEC_PHP) ./vendor/bin/phpunit
 
 behat: ## A php framework for autotesting business expectations
+	$(DOCKER_COMPOSE) exec -e APP_ENV=test php bin/console doctrine:database:drop --force --if-exists
+	$(DOCKER_COMPOSE) exec -e APP_ENV=test php bin/console doctrine:database:create
+	$(DOCKER_COMPOSE) exec -e APP_ENV=test php bin/console doctrine:migrations:migrate --no-interaction
+	$(DOCKER_COMPOSE) exec -e APP_ENV=test php bin/console doctrine:schema:update --force
+	$(DOCKER_COMPOSE) exec -e APP_ENV=test php bin/console doctrine:fixtures:load
 	$(DOCKER_COMPOSE) exec -e APP_ENV=test php ./vendor/bin/behat
 
 artillery: ## run Load testing
@@ -68,6 +73,9 @@ doctrine-migrations-migrate: ## Executes a migration to a specified version or t
 
 doctrine-migrations-generate: ## Generates a blank migration class
 	$(SYMFONY) d:m:g
+
+doctrine-migrations-create: ## Generates migrations from entities
+	$(SYMFONY_BIN) console make:migration
 
 cache-clear: ## Clears and warms up the application cache for a given environment and debug mode
 	$(SYMFONY) c:c
@@ -125,8 +133,7 @@ new-logs: ## Show live logs
 
 start: up ## Start docker
 
-stop: ## Stop docker and the Symfony binary server
-	$(DOCKER_COMPOSE) stop
+stop: down ## Stop docker and the Symfony binary server
 
 commands: ## List all Symfony commands
 	@$(SYMFONY) list

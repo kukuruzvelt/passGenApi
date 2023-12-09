@@ -4,7 +4,7 @@ FROM composer/composer:2-bin AS composer
 FROM mlocati/php-extension-installer:latest AS php_extension_installer
 
 # Build Caddy with the Mercure and Vulcain modules
-FROM caddy:2.6-builder-alpine AS app_caddy_builder
+FROM caddy:2.7-builder-alpine AS app_caddy_builder
 
 RUN xcaddy build \
 	--with github.com/dunglas/mercure \
@@ -44,6 +44,9 @@ RUN set -eux; \
     	zip \
     	apcu \
 		opcache \
+        pdo_mysql \
+        redis \
+        openssl \
     ;
 
 ###> recipes ###
@@ -65,7 +68,7 @@ COPY --link infrastructure/docker/php/docker-entrypoint.sh /usr/local/bin/docker
 RUN chmod +x /usr/local/bin/docker-entrypoint
 
 ENTRYPOINT ["docker-entrypoint"]
-CMD ["php-fpm"]
+CMD ["sh", "-c", "php-fpm"]
 
 # https://getcomposer.org/doc/03-cli.md#composer-allow-superuser
 ENV COMPOSER_ALLOW_SUPERUSER=1
@@ -116,7 +119,7 @@ RUN set -eux; \
 RUN rm -f .env.local.php
 
 # Caddy image
-FROM caddy:2.6-alpine AS app_caddy
+FROM caddy:2.7-alpine AS app_caddy
 
 WORKDIR /srv/app
 
