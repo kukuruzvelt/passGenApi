@@ -1,0 +1,16 @@
+api_platform:
+    swagger:
+        api_keys:
+            JWT:
+                name: Authorization
+                type: header
+
+    defaults:
+        extra_properties:
+            rfc_7807_compliant_errors: true
+
+    error_formats:
+        jsonproblem: [ 'application/problem+json' ]
+
+    resource_class_directories:
+        - '%kernel.project_dir%/src/CompanySubdomain/SomeModule/Domain/Entity'
